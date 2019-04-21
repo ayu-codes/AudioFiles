@@ -1,0 +1,34 @@
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:audio;MODE=Oracle;DB_CLOSE_ON_EXIT=FALSE
+    data: classpath:/sql*.sql
+    username: sa
+    password:
+#  h2:
+#   console:
+#    enabled: true
+#    path: /h2-console
+  servlet:
+   multipart:
+    max-file-size: 10MB
+  jpa:
+    hibernate:
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: create-drop
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+        type: TRACE
+
+server:
+  servlet:
+    contextPath: /audio
+  port: 8989

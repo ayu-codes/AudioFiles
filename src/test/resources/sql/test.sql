@@ -1,0 +1,1 @@
+select * from FILE_METADATA;
