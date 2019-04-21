@@ -18,7 +18,6 @@ public class AudioFileMetaDataService {
     }
 
     public AudioFileMetaDataDto metaDataOfFile(String fileName) {
-        StoredFileDetails storedFileDetails = audioFilesDao.getFileMetadataByFileName(fileName);
-        return AudioFileMetaDataDto.builder().storedFileDetails(storedFileDetails).build();
+        return AudioFileMetaDataDto.builder().storedFileDetails(audioFilesDao.getFileMetadataByFileName(fileName)).build();
     }
 }

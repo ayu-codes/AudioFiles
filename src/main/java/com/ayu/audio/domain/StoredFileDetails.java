@@ -11,4 +11,5 @@ public class StoredFileDetails {
     private Timestamp timestamp;
     private String fileName;
     private String speakerName;
+    private Long itemId;
 }

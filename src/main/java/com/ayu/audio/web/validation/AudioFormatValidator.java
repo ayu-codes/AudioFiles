@@ -1,7 +1,7 @@
 package com.ayu.audio.web.validation;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 
 public interface AudioFormatValidator {
-    boolean formatValidator(FileInputStream fileInputStream);
+    boolean formatValidator(InputStream inputStream);
 }
