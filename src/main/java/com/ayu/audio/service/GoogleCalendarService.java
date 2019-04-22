@@ -24,10 +24,8 @@ import org.springframework.util.ResourceUtils;
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.TimeZone;
 
 import static com.ayu.audio.constants.AudioConstants.RECORDING_TIME;
 
@@ -77,9 +75,11 @@ public class GoogleCalendarService {
     public AudioFileCalendarEntryDto pushEvents(String fileName, Timestamp fileTimestamp) throws IOException, GeneralSecurityException {
         Calendar calendar = getCalendarInstance();
         DateTime dateTime = new DateTime(fileTimestamp);
+        Event.Reminders reminders = new Event.Reminders();
         Event event = new Event()
-                .setSummary(fileName)
-                .setDescription("AudioFiles"+fileName);
+                .setSummary("AudioFiles: "+fileName)
+                .setDescription(fileName)
+                .setReminders(reminders.setUseDefault(false));
         EventDateTime start = new EventDateTime()
                 .setDateTime(dateTime)
                 .setTimeZone("Asia/Calcutta");
@@ -89,13 +89,13 @@ public class GoogleCalendarService {
                 .setTimeZone("Asia/Calcutta");
         event.setEnd(end);
         String calendarId = "primary";
-        event.setDescription(fileName);
         event.set(RECORDING_TIME, fileTimestamp);
         Calendar.Events.Insert insert = calendar.events().insert(calendarId, event);
         Event eventResult = insert.execute();
 
         if (eventResult.getSummary() != null) {
-            return AudioFileCalendarEntryDto.builder().message(eventResult.getSummary() + " Audio file upload event added in Google calendar.").build();
+            return AudioFileCalendarEntryDto.builder().message(
+                    String.format("Audio file upload event for %s added in Google calendar.",eventResult.getSummary())).build();
         } else
             return AudioFileCalendarEntryDto.builder().message("Audio file upload event not added in Google calendar.").build();
     }
