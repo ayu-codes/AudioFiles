@@ -47,7 +47,7 @@ public class AudioFileUploadController {
             throws FormatValidationException {
         Timestamp timestamp = Timestamp.from(now());
         validator.validateFileFormat(file);
-        AudioFileCalendarEntryDto audioFileCalendarEntryDto = null;
+        AudioFileCalendarEntryDto audioFileCalendarEntryDto;
         AudioFileUploadDto audioFileUploadDto = audioFileUploadService.uploadFile(file, speakerName, timestamp);
         try {
             audioFileCalendarEntryDto = googleCalendarService.pushEvents(file.getOriginalFilename(), timestamp);

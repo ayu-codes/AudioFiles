@@ -10,11 +10,13 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.client.util.Value;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -22,8 +24,10 @@ import org.springframework.util.ResourceUtils;
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.TimeZone;
 
 import static com.ayu.audio.constants.AudioConstants.RECORDING_TIME;
 
@@ -39,7 +43,7 @@ public class GoogleCalendarService {
     @Value("${google.api.credential.file}")
     private String CREDENTIALS_FILE;
 
-    @Value("${google.api.receiver.server.port}")
+//    @Value("${google.api.receiver.server.port}")
     private String PORT = "8888";
 
     private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -47,6 +51,7 @@ public class GoogleCalendarService {
 
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         InputStream clientSecretsStream = new FileInputStream(ResourceUtils.getFile("classpath:"+"auth.json"));
+//        InputStream clientSecretsStream = GoogleCalendarService.class.getResourceAsStream("classpath:"+"auth.json");
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(clientSecretsStream));
         GoogleAuthorizationCodeFlow flow = getCodeFlowAndAuthorizationRequest(HTTP_TRANSPORT, clientSecrets);
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(Integer.valueOf(PORT)).build();
@@ -63,7 +68,7 @@ public class GoogleCalendarService {
     }
 
     private Calendar getCalendarInstance() throws IOException, GeneralSecurityException {
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         return new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 .setApplicationName("AudioFiles")
                 .build();
@@ -71,16 +76,27 @@ public class GoogleCalendarService {
 
     public AudioFileCalendarEntryDto pushEvents(String fileName, Timestamp fileTimestamp) throws IOException, GeneralSecurityException {
         Calendar calendar = getCalendarInstance();
-        Event event = new Event();
-        Event.Source source = new Event.Source();
+        DateTime dateTime = new DateTime(fileTimestamp);
+        Event event = new Event()
+                .setSummary(fileName)
+                .setDescription("AudioFiles"+fileName);
+        EventDateTime start = new EventDateTime()
+                .setDateTime(dateTime)
+                .setTimeZone("Asia/Calcutta");
+        event.setStart(start);
+        EventDateTime end = new EventDateTime()
+                .setDateTime(dateTime)
+                .setTimeZone("Asia/Calcutta");
+        event.setEnd(end);
+        String calendarId = "primary";
         event.setDescription(fileName);
-        event.setSource(source.setTitle(APPLICATION_NAME));
         event.set(RECORDING_TIME, fileTimestamp);
-        Calendar.Events.Insert insert = calendar.events().insert(fileName, event);
+        Calendar.Events.Insert insert = calendar.events().insert(calendarId, event);
         Event eventResult = insert.execute();
+
         if (eventResult.getSummary() != null) {
-            return AudioFileCalendarEntryDto.builder().message("Event added in Google calendar.").build();
+            return AudioFileCalendarEntryDto.builder().message(eventResult.getSummary() + " Audio file upload event added in Google calendar.").build();
         } else
-            return AudioFileCalendarEntryDto.builder().message("Event not added in Google calendar.").build();
+            return AudioFileCalendarEntryDto.builder().message("Audio file upload event not added in Google calendar.").build();
     }
 }
