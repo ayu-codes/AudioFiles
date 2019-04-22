@@ -7,10 +7,6 @@ spring:
     data: classpath:/sql*.sql
     username: sa
     password:
-#  h2:
-#   console:
-#    enabled: true
-#    path: /h2-console
   servlet:
    multipart:
     max-file-size: 10MB
@@ -32,3 +28,17 @@ server:
   servlet:
     contextPath: /audio
   port: 8989
+
+application:
+  name: AudioFiles
+
+google:
+  api:
+    tokens:
+      directory:
+        path: tokens
+    credential:
+      file: auth.json
+    receiver:
+      server:
+        port: 8888

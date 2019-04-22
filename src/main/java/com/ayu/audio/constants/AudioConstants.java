@@ -5,4 +5,5 @@ public interface AudioConstants {
     String DOWNLOAD = "download";
     String METADATA = "metadata";
     String DELETE = "delete";
+    String RECORDING_TIME ="Recording Time";
 }

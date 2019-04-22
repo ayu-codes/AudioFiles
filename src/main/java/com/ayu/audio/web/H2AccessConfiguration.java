@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
-public class WebConfiguration {
+public class H2AccessConfiguration {
     @Bean
-    ServletRegistrationBean h2servletRegistration() {
+    ServletRegistrationBean servletRegistration() {
         ServletRegistrationBean registrationBean = new ServletRegistrationBean(new WebServlet());
         registrationBean.addUrlMappings("/console/*");
         return registrationBean;

@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Builder
 @Data
-public class AudioFileUploadDto {
-	String message;
+public class AudioFileCalendarEntryDto {
+    String message;
 }

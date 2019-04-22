@@ -22,8 +22,8 @@ public class AudioFileUploadService {
 
     public AudioFileUploadDto uploadFile(MultipartFile file, String speakerName, Timestamp timestamp) {
         if (audioFilesDao.insertUploadedFile(file, speakerName , timestamp))
-            return AudioFileUploadDto.builder().uploadMessage("File Uploaded successfully.").build();
+            return AudioFileUploadDto.builder().message("File Uploaded successfully.").build();
         else
-            return AudioFileUploadDto.builder().uploadMessage("File Uploaded failed.").build();
+            return AudioFileUploadDto.builder().message("File Uploaded failed.").build();
     }
 }
