@@ -9,13 +9,15 @@ import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 
+import static java.util.EnumSet.*;
+
 @Component
 public final class Validator {
     @Autowired
     private List<AudioFormatValidator> validators;
 
     public void validateFileFormat(MultipartFile file) throws FormatValidationException {
-        EnumSet<SupportedFormats> supportedFormats = EnumSet.allOf(SupportedFormats.class);
+        EnumSet<SupportedFormats> supportedFormats = allOf(SupportedFormats.class);
         boolean isNotValid = false;
         if (validators != null) {
             for (AudioFormatValidator validator : validators) {

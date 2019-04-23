@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,21 +25,16 @@ public class AudioFilesDao {
     }
 
 
-    public boolean insertUploadedFile(MultipartFile file, String speakerName, Timestamp timestamp) {
-        try {
-            FileMetadata fileMetadata = new FileMetadata();
-            UserFileDetails userFileDetails = new UserFileDetails();
-            userFileDetails.setFileName(file.getOriginalFilename());
-            fileMetadata.setSpeakerName(speakerName);
-            fileMetadata.setTimeStamp(timestamp);
-            userFileDetails.setFileMetadata(fileMetadata);
-            userFileDetails.setFileContent(file.getBytes());
-            fileMetadata.setUserFileDetails(userFileDetails);
-            return audioFileUploadRepository.saveAndFlush(userFileDetails) != null;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-        return false;
+    public boolean insertUploadedFile(MultipartFile file, String speakerName, Timestamp timestamp) throws IOException {
+        FileMetadata fileMetadata = new FileMetadata();
+        UserFileDetails userFileDetails = new UserFileDetails();
+        userFileDetails.setFileName(file.getOriginalFilename());
+        fileMetadata.setSpeakerName(speakerName);
+        fileMetadata.setTimeStamp(timestamp);
+        userFileDetails.setFileMetadata(fileMetadata);
+        userFileDetails.setFileContent(file.getBytes());
+        fileMetadata.setUserFileDetails(userFileDetails);
+        return audioFileUploadRepository.saveAndFlush(userFileDetails) != null;
     }
 
     public List<UserFileDetails> getFileContentByFileName(String fileName) {

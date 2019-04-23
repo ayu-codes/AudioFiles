@@ -66,6 +66,11 @@
             <artifactId>google-api-services-calendar</artifactId>
             <version>v3-rev375-1.25.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>2.13.0</version>
+        </dependency>
     </dependencies>
 
     <build>

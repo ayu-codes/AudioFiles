@@ -8,6 +8,7 @@ import com.ayu.audio.dto.AudioFileUploadDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 
 @Service
@@ -20,10 +21,10 @@ public class AudioFileUploadService {
 
     }
 
-    public AudioFileUploadDto uploadFile(MultipartFile file, String speakerName, Timestamp timestamp) {
+    public AudioFileUploadDto uploadFile(MultipartFile file, String speakerName, Timestamp timestamp) throws IOException {
         if (audioFilesDao.insertUploadedFile(file, speakerName , timestamp))
-            return AudioFileUploadDto.builder().message("File Uploaded successfully.").build();
+            return AudioFileUploadDto.builder().message(String.format("File %s uploaded successfully.",file.getOriginalFilename())).build();
         else
-            return AudioFileUploadDto.builder().message("File Uploaded failed.").build();
+            return AudioFileUploadDto.builder().message(String.format("File upload of %s failed.",file.getOriginalFilename())).build();
     }
 }

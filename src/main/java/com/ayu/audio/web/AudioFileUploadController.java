@@ -3,6 +3,7 @@ package com.ayu.audio.web;
 import com.ayu.audio.dto.AudioFileCalendarEntryDto;
 import com.ayu.audio.dto.AudioFileDto;
 import com.ayu.audio.dto.AudioFileUploadDto;
+import com.ayu.audio.exception.FileUploadException;
 import com.ayu.audio.service.AudioFileUploadService;
 import com.ayu.audio.service.GoogleCalendarService;
 import com.ayu.audio.web.exception.FormatValidationException;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 
 import static com.ayu.audio.constants.AudioConstants.UPLOAD;
@@ -42,13 +44,18 @@ public class AudioFileUploadController {
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> uploadAudioFile(@RequestParam(name = "file") MultipartFile file,
+    public ResponseEntity<?> uploadAudioFile(@RequestParam(name = "file", required = false) MultipartFile file,
                                              @RequestParam(name = "speakerName") String speakerName)
-            throws FormatValidationException {
+            throws FormatValidationException, FileUploadException {
         Timestamp timestamp = Timestamp.from(now());
         validator.validateFileFormat(file);
         AudioFileCalendarEntryDto audioFileCalendarEntryDto;
-        AudioFileUploadDto audioFileUploadDto = audioFileUploadService.uploadFile(file, speakerName, timestamp);
+        AudioFileUploadDto audioFileUploadDto;
+        try {
+            audioFileUploadDto = audioFileUploadService.uploadFile(file, speakerName, timestamp);
+        } catch (IOException e) {
+            throw new FileUploadException(String.format("There was an issue in upload of file %s.", file.getOriginalFilename()));
+        }
         try {
             audioFileCalendarEntryDto = googleCalendarService.pushEvents(file.getOriginalFilename(), timestamp);
         } catch (Exception e) {
