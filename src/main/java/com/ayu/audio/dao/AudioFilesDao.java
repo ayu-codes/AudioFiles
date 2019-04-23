@@ -3,6 +3,7 @@ package com.ayu.audio.dao;
 import com.ayu.audio.domain.FileMetadata;
 import com.ayu.audio.domain.StoredFileDetails;
 import com.ayu.audio.domain.UserFileDetails;
+import com.ayu.audio.exception.FileNotAvailableException;
 import com.ayu.audio.repository.AudioFileUploadRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -40,24 +41,30 @@ public class AudioFilesDao {
         return false;
     }
 
-    public List<UserFileDetails> getFileContentByFileNameOrSpeakerName(String fileName, String speakerName) {
+    public List<UserFileDetails> getFileContentByFileName(String fileName) {
         return audioFileUploadRepository.findAllByFileName(fileName);
     }
 
     public List<StoredFileDetails> getFileMetadataByFileName(String fileName) {
-        List<UserFileDetails> userFileDetails = audioFileUploadRepository.findAllByFileName(fileName);
 
-        return userFileDetails.stream().map(
-                userFileDetail -> new StoredFileDetails(
-                        userFileDetail.getFileMetadata().getTimeStamp(),
-                        userFileDetail.getFileName(),
-                        userFileDetail.getFileMetadata().getSpeakerName(),
-                        userFileDetail.getId())).
-                collect(Collectors.toList());
+        return audioFileUploadRepository.findAllByFileName(fileName)
+                .stream()
+                .map(
+                    userFileDetail -> new StoredFileDetails(
+                            userFileDetail.getFileMetadata().getTimeStamp(),
+                            userFileDetail.getFileName(),
+                            userFileDetail.getFileMetadata().getSpeakerName(),
+                            userFileDetail.getId()))
+                .collect(Collectors.toList());
     }
 
     @Transactional
     public boolean deleteFileByFileName(String fileName) {
         return audioFileUploadRepository.deleteByFileName(fileName) != null;
+    }
+
+    public UserFileDetails getFileContentByFileId(String fileId) throws FileNotAvailableException {
+        return audioFileUploadRepository.findById(Long.valueOf(fileId))
+                .orElseThrow(() -> new FileNotAvailableException(String.format("The requested file with ID : %s has not been uploaded yet.", fileId)));
     }
 }
